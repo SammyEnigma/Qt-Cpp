@@ -84,6 +84,74 @@ inline void copyFolder(QString sourceFolder, QString destFolder)
     }
 }
 
+//Transforming points from a rotated(Uncropped)image to the orignal image.
+inline void transformPointsPosition(float angle , vector<cv::Point> &inputPnts , QSize inputImgSize , QSize rotatedImgSize )
+{
+    float sineValue = qSin(qDegreesToRadians(360-angle));
+    float cosValue = qCos(qDegreesToRadians(360-angle));
+
+    for(cv::Point &inPnt : inputPnts)
+    {
+
+        float transformedX ;
+        float transformedY ;
+
+        inPnt.x = inPnt.x - float(rotatedImgSize.width()/2);
+        inPnt.y = inPnt.y - float(rotatedImgSize.height()/2);
+
+        //Rotation
+        transformedX = (float(inPnt.x) * cosValue) - (float(inPnt.y ) * sineValue);
+        transformedY = (float(inPnt.x) * sineValue) + (float(inPnt.y ) * cosValue) ;
+
+        inPnt.x = transformedX;
+        inPnt.y = transformedY;
+
+        //Scaling
+        inPnt.x = inPnt.x + float(inputImgSize.width()/2) ;
+        inPnt.y = inPnt.y + float(inputImgSize.height()/2) ;
+    }
+
+}
+
+
+inline void removeOverlappingPoints(vector < cv::Point > &rectPntList)
+{
+    const float OVERLAPPING_THRESHOLD = 60.0 ;
+    vector < cv::Point > pointList ;
+
+    if (rectPntList.size() == 0)
+        return;
+
+    auto in_itr = rectPntList.begin();
+    pointList.push_back(*in_itr);
+    ++in_itr;
+
+    while (in_itr != rectPntList.end()) {
+        bool similar_point_added = false;
+        for (auto out_itr = pointList.begin();
+             out_itr != pointList.end();
+             ++out_itr) {
+            if (get_eucliedean_distance((*in_itr) , (*out_itr)) < OVERLAPPING_THRESHOLD) {
+                similar_point_added = true;
+                break;
+            }
+        }
+        if (similar_point_added == false) {
+            pointList.push_back(*in_itr);
+        }
+        ++in_itr;
+    }
+
+    rectPntList.clear();
+
+    for(auto &pnt : pointList)
+    {
+        rectPntList.push_back(pnt);
+    }
+
+}
+
+
 
 
 #endif // UTILITIES_H

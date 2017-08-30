@@ -1,6 +1,7 @@
 #ifndef POLYGON_UTILS_H
 #define POLYGON_UTILS_H
 
+#include "common_imports.h"
 
 inline QVector<QPointF> generate_random_polygon(QPoint start_pos)
 {

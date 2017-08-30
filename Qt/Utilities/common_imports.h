@@ -44,5 +44,8 @@
 #include <QCoreApplication>
 #include <QThread>
 
+#include <vector>
+
+using namespace std;
 
 #endif // COMMON_H
